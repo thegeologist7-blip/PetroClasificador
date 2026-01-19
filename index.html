@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="screen-orientation" content="portrait">
+    <title>Geotech Petro Master</title>
+    <style>
+    /* 1. MARCO PRINCIPAL: Edge-to-Edge para móvil */
+    #master-petro-container {
+        max-width: 1050px; 
+        margin: 0 auto;
+        width: 100%;
+        background: #052c52;
+        font-family: 'Segoe UI', sans-serif;
+        box-sizing: border-box; /* Vital para que el contenedor no se desborde */
+    }
+
+    .master-main-header {
+        background: #052c52; 
+        padding: 15px 20px; 
+        color: white;
+    }
+
+    .master-nav-tabs { 
+        display: flex; 
+        background: #e2e8f0; 
+        padding: 8px 10px 0; 
+        gap: 4px; 
+        overflow-x: auto; /* Permite scroll si las pestañas no caben */
+    }
+
+    .tab-btn-master {
+        padding: 8px 15px; 
+        border: none; 
+        background: #cbd5e0; 
+        color: #4a5568;
+        cursor: pointer; 
+        font-size: 10px; 
+        font-weight: 800; 
+        border-radius: 6px 6px 0 0;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .tab-btn-master.active { 
+        background: #ffffff; 
+        color: #052c52; 
+        border-top: 3px solid #3498db; 
+    }
+
+    /* 2. CONTENEDORES DE PESTAÑA */
+    .tab-content-master {
+        display: none;
+        background: #ffffff;
+        padding: 0;
+    }
+    .tab-content-master.active { display: block; }
+
+    /* 3. INPUTS: REPARADO PARA NO PERDERSE A LA DERECHA */
+    .gt-overlay-inputs {
+        position: relative !important;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        background: #f8fafc;
+        /* Padding equilibrado: 12px arriba/abajo y 15px a los lados */
+        padding: 12px 15px !important; 
+        border-bottom: 1px solid #cbd5e1;
+        gap: 8px;
+        box-sizing: border-box; /* Asegura que el padding se reste del 100% */
+    }
+
+    .gt-overlay-inputs > div { 
+        flex: 1; 
+        text-align: center;
+        min-width: 0; /* Permite que el div se encoja sin desbordar */
+    }
+
+    .gt-label { font-size: 8px; color: #1a5276; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 2px; }
+    .gt-field { 
+        width: 100%; 
+        padding: 5px 2px; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 4px; 
+        font-weight: bold; 
+        box-sizing: border-box; /* Evita que el input sea más ancho que su celda */
+        text-align: center;
+    }
+
+    /* 4. RESULTADOS */
+    .gt-res-panel { 
+    background: #052c52; 
+    color: white; 
+    padding: 10px 15px; 
+    border-left: 6px solid #e67e22; 
+    display: flex; 
+    flex-direction: column; /* Apilado vertical */
+    justify-content: center; 
+    align-items: center;    /* CENTRA EL CONTENIDO HORIZONTALMENTE */
+    text-align: center;      /* CENTRA EL TEXTO SI SE ROMPE EN DOS LÍNEAS */
+    min-height: 60px; 
+}
+
+#gt-rock-name, #mafic-name, #ultra-rock-name { 
+    font-size: 16px !important; /* Un poco más grande para destacar */
+    font-weight: 800;
+    width: 100%;             /* Asegura que el centro sea real */
+    margin-bottom: 4px; 
+}
+
+#gt-norm-stats, #mafic-stats, #ultra-stats { 
+    font-size: 11px !important; 
+    opacity: 0.85;
+    letter-spacing: 0.5px;   /* Mejora la lectura de los números */
+}
+    /* 5. DIAGRAMA */
+    .gt-main, .gt-main-m {
+        padding: 15px 10px !important; 
+        background: white;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .gt-col-right { width: 100%; max-width: 650px; position: relative; }
+
+    /* Estilos de dibujo */
+    .gt-poly-m, .gt-poly { stroke: #ffffff; stroke-width: 0.2; fill-opacity: 0.95; }
+    .gt-num-circ-m, .gt-num-circ { fill: #fff; stroke: #052c52; stroke-width: 0.3; }
+    .gt-num-txt-m, .gt-num-txt { font-size: 2.6px; font-weight: 800; fill: #052c52; text-anchor: middle; dominant-baseline: middle; }
+
+    /* RESPONSIVIDAD MÓVIL REFINADA */
+    @media (max-width: 768px) {
+        .gt-overlay-inputs { padding: 8px 10px !important; gap: 4px; }
+        .gt-label { font-size: 7px !important; }
+        .gt-field { font-size: 11px !important; height: 28px; }
+        .gt-res-panel { padding: 8px 12px; }
+        #gt-rock-name, #mafic-name, #ultra-rock-name { font-size: 13px !important; line-height: 1.2; }
+    }
+
+    /* Ajustes específicos de posición */
+    #tab-qapf .gt-main { margin-top: 0 !important; padding-top: 5px !important; }
+    #tab-mafic .gt-main-m, #tab-ultra .gt-main-m { margin-top: 15px; }
+      
+    /* Estilo para el halo blanco */
+    .halo {
+        fill: #ffffff;
+        stroke: #ffffff;
+        stroke-width: 0.6px; /* Grosor del halo */
+        stroke-linejoin: round;
+        paint-order: stroke;
+        font-family: Arial, sans-serif;
+        font-size: 2.5px;
+        font-weight: 700;
+    }
+    /* Estilo para el número principal */
+    .numero {
+        fill: #052c52; /* Color del número */
+        font-family: Arial, sans-serif;
+        font-size: 2.5px;
+        font-weight: 700;
+        pointer-events: none;
+    }  
+      
+  /* Línea 1: Nombre de la roca */
+.gt-label-main {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 2.4px;
+    font-weight: 800;
+    fill: #052c52;
+    text-anchor: middle;
+}
+/* Línea 2: Accesorios (más pequeña y sutil) */
+.gt-label-sub {
+    font-size: 2px;
+    font-weight: 600;
+    fill: #1a5276;
+}
+   #btn-ayuda-flotante {
+    position: fixed !important;
+    top: 150px; /* Alineado con la parte superior del diamante */
+    right: 25px; /* Posicionado a la derecha para no tapar la leyenda */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e67e22; /* Naranja de alto contraste */
+    color: white;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    z-index: 5000;
+    cursor: move;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none; /* Vital para el arrastre en móviles */
+    user-select: none;
+}
+
+#btn-ayuda-flotante:active {
+    transform: scale(0.9);
+    background: #d35400;
+}
+
+/* Bloqueo de scroll cuando el modal está abierto */
+.modal-open {
+    overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+<div id="master-petro-container">
+    <div class="master-main-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 25px;">
+    <div>
+        <h1 style="margin:0; font-size: 20px; font-weight: 800; color: #ffffff;">
+            GEOTECH <span style="font-weight: 300; color: #3498db;">Petrology Master</span>
+        </h1>
+        <p style="margin: 4px 0 0; font-size: 10px; opacity: 0.9; text-transform: uppercase; color: white;">
+            Clasificación de Rocas Plutónicas (IUGS)
+        </p>
+    </div>
+
+    <div style="background: #3498db; color: white; font-size: 9px; padding: 1px 5px; border-radius: 4px; font-weight: bold; white-space: nowrap;">
+        v3.5 PRO
+    </div>
+</div>
+
+    <div class="master-nav-tabs">
+        <button class="tab-btn-master active" onclick="openPetroTab(event, 'tab-qapf')">💎 QAPF</button>
+        <button class="tab-btn-master" onclick="openPetroTab(event, 'tab-mafic')">📐 MÁFICAS</button>
+        <button class="tab-btn-master" onclick="openPetroTab(event, 'tab-ultra')">🌋 ULTRAMÁFICAS</button>
+    </div>
+
+    <div id="tab-qapf" class="tab-content-master active">
+    <div id="gt-app" style="position: relative;">
+        
+        <div class="gt-overlay-inputs" style="display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: #f1f5f9; border-radius: 8px; margin-bottom: 10px;">
+    <div style="flex: 2;"><label class="gt-label">Q</label><input type="number" id="q-in" value="30" oninput="geoUpdate()" class="gt-field" style="width:100%"></div>
+    <div style="flex: 2;"><label class="gt-label">A</label><input type="number" id="a-in" value="35" oninput="geoUpdate()" class="gt-field" style="width:100%"></div>
+    <div style="flex: 2;"><label class="gt-label">P</label><input type="number" id="p-in" value="35" oninput="geoUpdate()" class="gt-field" style="width:100%"></div>
+    <div style="flex: 2;"><label class="gt-label" style="color:#b91c1c">F</label><input type="number" id="f-in" value="0" oninput="geoUpdate()" class="gt-field" style="width:100%"></div>
+    <div style="flex: 1.5;">
+        <button onclick="registrarMuestra()" style="width: 100%; height: 32px; background: #27ae60; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 18px;">➕</button>
+      
+      
+    </div>
+</div>
+      
+      <div class="gt-res-panel">
+            <div id="gt-rock-name" style="font-size: 15px; font-weight: 800;">-</div>
+            <div id="gt-norm-stats" style="font-size: 12px; font-weight: bold;"></div>
+        </div>
+      
+            <div class="gt-main">
+                <div class="gt-col-right">
+                    <svg viewBox="25 5 150 225" id="gt-canvas" style="width: 100%; height: auto; display: block;">
+                      <defs>
+    <symbol id="sym-1" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor" stroke="white" stroke-width="0.8"/></symbol>
+    <symbol id="sym-2" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="currentColor" stroke="white" stroke-width="0.8"/></symbol>
+    <symbol id="sym-3" viewBox="0 0 10 10"><path d="M5 1 L9 9 L1 9 Z" fill="currentColor" stroke="white" stroke-width="0.8"/></symbol>
+    <symbol id="sym-4" viewBox="0 0 10 10"><path d="M5 1 L9 5 L5 9 L1 5 Z" fill="currentColor" stroke="white" stroke-width="0.8"/></symbol>
+</defs>
+<g id="gt-legend-box" transform="translate(28, 18)" style="pointer-events: none; opacity: 0.9;">
+    <text x="0" y="0" font-size="2.6" font-weight="bold" fill="#052c52">ABR. MINERALES:</text>
+    
+    <g font-size="2.4" fill="#444">
+        <text x="0" y="4">Ab - Albita</text>
+        <text x="0" y="6.5">An - Anortosita</text>
+        <text x="0" y="9">Ms - Moscovita</text>
+        <text x="0" y="11.5">Bt - Biotita</text>
+        <text x="0" y="14">Hbl - Hornblenda</text>
+        <text x="0" y="16.5">Grt - Granate</text>
+        <text x="0" y="19">Px - Piroxeno (Opx, Cpx)</text>
+        <text x="0" y="21.5">Opx - Ortopiroxeno (Enstatita, Ferrosilita)</text>
+        <text x="0" y="24">Cpx - Clinopiroxeno (Diópsido, Hedenbergita)</text>
+        <text x="0" y="26.5">Ol - Olivino</text>
+        <text x="0" y="29">Na-Px - Piroxeno Sódico</text>
+        <text x="0" y="31.5">Na-Amph - Anfíbol Sódico</text>
+        <text x="0" y="34">Na-Hbl - Hornblenda Sódica</text>
+        <text x="0" y="36.5">Ca-Hbl - Hornblenda Cálcica</text>
+        <text x="0" y="39">Trm - Turmalina</text>
+        <text x="0" y="41.5">Tpz - Topacio</text>
+        <text x="0" y="44">Mel - Melilita</text>
+        <text x="0" y="46.5">Mgn - Magnetita</text>
+        <text x="0" y="49">Crm - Cromita</text>
+    </g>
+</g>
+</g>
+    <g id="gt-geometry-layer">
+    </g>
+    <g id="gt-labels-layer">
+        <text x="100" y="14" font-size="5" font-weight="800" fill="#052c52" text-anchor="middle">Q</text>
+        <text x="27" y="122" font-size="5" font-weight="800" fill="#052c52" text-anchor="middle">A</text>
+        <text x="173" y="122" font-size="5" font-weight="800" fill="#052c52" text-anchor="middle">P</text>
+        <text x="100" y="230" font-size="5" font-weight="800" fill="#b91c1c" text-anchor="middle">F</text>
+      
+    <g id="gt-geometry-layer" style="fill-opacity: 0.95; stroke: #ffffff; stroke-width: 0.2;">
+    <path id="poly-1" d="M100,15 L93,25.5 L107,25.5 Z" fill="#D3CBC0" /> 
+    <path id="poly-2" d="M93,25.5 L72,57 L128,57 L107,25.5 Z" fill="#D4BB9D" /> 
+    <path id="poly-3" d="M72,57 L77.6,57 L55.2,99 L44,99 L72,57 Z" fill="#FF9F75" /> 
+    <path id="poly-4" d="M77.6,57 L91.6,57 L83.2,99 L55.2,99 L77.6,57 Z" fill="#F9A688" /> 
+    <path id="poly-5" d="M91.6,57 L108.4,57 L116.8,99 L83.2,99 L91.6,57 Z" fill="#E6A891" /> 
+    <path id="poly-6" d="M108.4,57 L122.4,57 L144.8,99 L116.8,99 L108.4,57 Z" fill="#D5B3A7" /> 
+    <path id="poly-7" d="M122.4,57 L128,57 L156,99 L144.8,99 L122.4,57 Z" fill="#C5BDBA" /> 
+    <path id="poly-8" d="M44,99 L55.2,99 L46.8,114.75 L33.5,114.75 L44,99 Z" fill="#FF6633" />
+    <path id="poly-9" d="M55.2,99 L83.2,99 L80,114.75 L46.8,114.75 L55.2,99 Z" fill="#F38864" />
+    <path id="poly-10" d="M83.2,99 L116.8,99 L120,114.75 L80,114.75 L83.2,99 Z" fill="#DD8F78" />
+    <path id="poly-11" d="M116.8,99 L144.8,99 L153.2,114.75 L120,114.75 L116.8,99 Z" fill="#BF978D" />
+    <path id="poly-12" d="M144.8,99 L156,99 L166.5,114.75 L153.2,114.75 L144.8,99 Z" fill="#8E8F91" />
+
+    <path id="poly-13" d="M33.5,114.75 L46.8,114.75 L44,120 L30,120 L33.5,114.75 Z" fill="#FF5F45" />
+    <path id="poly-14" d="M46.8,114.75 L80,114.75 L79,120 L44,120 L46.8,114.75 Z" fill="#EB7060" />
+    <path id="poly-15" d="M80,114.75 L120,114.75 L121,120 L79,120 L80,114.75 Z" fill="#CA8075" />
+    <path id="poly-16" d="M120,114.75 L153.2,114.75 L156,120 L121,120 L120,114.75 Z" fill="#AF8883" />
+    <path id="poly-17" d="M153.2,114.75 L166.5,114.75 L170,120 L156,120 L153.2,114.75 Z" fill="#8C8280" />
+
+    <path id="poly-18" d="M30,120 L44,120 L49.6,130.5 L37,130.5 Z" fill="#C395B9" />
+    <path id="poly-19" d="M44,120 L79,120 L81.1,130.5 L49.6,130.5 Z" fill="#B198AB" />
+    <path id="poly-20" d="M79,120 L121,120 L118.9,130.5 L81.1,130.5 Z" fill="#9C8E9D" />
+    <path id="poly-21" d="M121,120 L156,120 L150.4,130.5 L118.9,130.5 Z" fill="#8B7F8B" />
+    <path id="poly-22" d="M156,120 L170,120 L163,130.5 L150.4,130.5 Z" fill="#766C75" />
+
+    <path id="poly-23" d="M37,130.5 L49.6,130.5 L76,183 L72,183 Z" fill="#8AACD9" />
+    <path id="poly-24" d="M49.6,130.5 L100,130.5 L100,183 L76,183 Z" fill="#94A9C8" />
+    <path id="poly-25" d="M100,130.5 L150.4,130.5 L124,183 L100,183 Z" fill="#9098A5" />
+    <path id="poly-26" d="M150.4,130.5 L163,130.5 L128,183 L124,183 Z" fill="#6D6E72" />
+
+    <path id="poly-27" d="M72,183 L128,183 L107,214.5 L93,214.5 Z" fill="#418BCA" />
+    <path id="poly-28" d="M93,214.5 L107,214.5 L100,225 Z" fill="#1A68A6" />
+</g>
+    
+    <g id="labels-center-strip-refined" pointer-events="none">
+    
+    <text x="100" y="21" class="gt-label-main">QUARTZOLITA<tspan x="100" dy="2.2" class="gt-label-sub">+ Qz</tspan></text>
+    
+    <text x="100" y="42" class="gt-label-main">GRANITOIDE RICO EN Qz<tspan x="100" dy="2.2" class="gt-label-sub">Ms, ±Trm, ±Tpz</tspan></text>
+    
+   <text x="63" y="80" class="gt-label-main" transform="rotate(-61, 63, 80)">GRANITO A.F. <tspan class="gt-label-sub"> Na-Amph, Na-Px, Bt</tspan></text>
+      
+    <text x="76" y="83" class="gt-label-main" transform="rotate(0, 76, 83)">SIENOGRANITO<tspan x="76" dy="2.2" class="gt-label-sub">Bt, ±Ms</tspan></text>
+    <text x="100" y="83" class="gt-label-main">MONZOGRANITO<tspan x="100" dy="2.2" class="gt-label-sub">Bt, ±Ms</tspan></text>
+    <text x="125" y="83" class="gt-label-main" transform="rotate(0, 125, 83)">GRANODIORITA<tspan x="125" dy="2.2" class="gt-label-sub">Bt, Hbl(Ms)</tspan></text>
+    <text x="138" y="80" class="gt-label-main" transform="rotate(60, 138, 80)">TONALITA<tspan class="gt-label-sub"> Bt, Hbl</tspan></text>
+
+    <text x="41" y="106" class="gt-label-main" transform="rotate(0, 41, 106)" font-size="2">SIENITA A.F. Qz<tspan x="42" dy="2" class="gt-label-sub" font-size="1.3">Na-Px</tspan></text>
+    <text x="68" y="107" class="gt-label-main" font-size="2">SIENITA Qz<tspan x="68" dy="2" class="gt-label-sub" font-size="1.3">Bt, Hbl</tspan></text>
+    <text x="100" y="107" class="gt-label-main" font-size="2">MONZONITA Qz<tspan x="100" dy="2" class="gt-label-sub" font-size="1.3">Hbl, Bt, Px</tspan></text>
+    <text x="132" y="105" class="gt-label-main" font-size="2">Qz MONZODIORITA<tspan x="132" dy="2" class="gt-label-sub" font-size="1.3">Bt, Hbl, Px</tspan></text>
+    <text x="132" y="110" class="gt-label-main" font-size="2">Qz MONZOGABBRO<tspan x="132" dy="2" class="gt-label-sub" font-size="1.3">Px, Hbl, Bt,OI</tspan></text>
+    <text x="156" y="106" class="gt-label-main" transform="rotate(0, 156, 106)" font-size="2">Qz.DIO/GABBRO<tspan x="156" dy="2" class="gt-label-sub" font-size="1.3">Px, Hbl</tspan></text>
+
+    <text x="40" y="117.5" class="gt-label-main" transform="rotate(0, 40, 117.5)" font-size="1.8">SIENITA A.F.<tspan x="40" dy="1.8" class="gt-label-sub" font-size="1.2">Na-Amph</tspan></text>
+    <text x="62" y="117.8" class="gt-label-main" font-size="1.8">SIENITA<tspan x="62" dy="1.8" class="gt-label-sub" font-size="1.2">Bt, Hbl</tspan></text>
+    <text x="100" y="117.8" class="gt-label-main" font-size="1.8">MONZONITA<tspan x="100" dy="1.8" class="gt-label-sub" font-size="1.2">Hbl, Bt, Ol</tspan></text>
+    <text x="138" y="117.8" class="gt-label-main" font-size="1.8">MONZODIORITA<tspan x="138" dy="1.8" class="gt-label-sub" font-size="1.2">Px, Hbl</tspan></text>
+    <text x="163" y="117.5" class="gt-label-main" transform="rotate(0, 163, 117.5)" font-size="1.8">DIORITA/GABBRO<tspan x="163" dy="1.8" class="gt-label-sub" font-size="1.2">Px, Ol</tspan></text>
+
+    <text x="40" y="125.5" class="gt-label-main" transform="rotate(0, 40, 125.5)" font-size="1.8">SIENITA A.F. (F)<tspan x="40" dy="1.8" class="gt-label-sub" font-size="1.2">Na-Px</tspan></text>
+    <text x="62" y="125.8" class="gt-label-main" font-size="1.8">SIENITA (F)<tspan x="62" dy="1.8" class="gt-label-sub" font-size="1.2">Bt, Hbl</tspan></text>
+    <text x="100" y="125.8" class="gt-label-main" font-size="1.8">MONZONITA (F)<tspan x="100" dy="1.8" class="gt-label-sub" font-size="1.2">Hbl, Px</tspan></text>
+    <text x="138" y="125.8" class="gt-label-main" font-size="1.8">MONZODIORITA (F)<tspan x="138" dy="1.8" class="gt-label-sub" font-size="1.2">Px, Hbl</tspan></text>
+    <text x="160" y="125.5" class="gt-label-main" transform="rotate(0, 160, 125.5)" font-size="1.8">DIORITA (F)<tspan x="160" dy="1.8" class="gt-label-sub" font-size="1.2">Px, Ol</tspan></text>
+
+    <text x="56" y="152" class="gt-label-main" transform="rotate(60, 56, 152)" font-size="2.2">SIENITA FOID.<tspan class="gt-label-sub" font-size="1.4"> Na-Px, Na-Hbl, (Bt, Grt, OI)</tspan></text>
+    <text x="85" y="155" class="gt-label-main" transform="rotate(0, 85, 155)" font-size="2.2">MONZOSIENITA F.<tspan x="85" dy="2.2" class="gt-label-sub" font-size="1.4">Bt, Px</tspan></text>
+    <text x="115" y="155" class="gt-label-main" transform="rotate(0, 115, 155)" font-size="2.2">MONZODIORITA F.<tspan x="115" dy="2.2" class="gt-label-sub" font-size="1.4">Px, Bt</tspan></text>
+    <text x="144" y="152" class="gt-label-main" transform="rotate(-60, 144, 152)" font-size="2.2">(F)DIORITA/GABBRO.<tspan x="144" dy="2.2" class="gt-label-sub" font-size="1.4"> Cpx, Na-Px, Bt, OI, ±Mel (Na-Hbl)</tspan></text>
+
+    <text x="100" y="198" class="gt-label-main">FOIDOLITA<tspan x="100" dy="2.5" class="gt-label-sub">Cpx, Na-Px, Ol</tspan></text>
+    <text x="100" y="218" class="gt-label-main">URTITA<tspan x="100" dy="2.2" class="gt-label-sub">Cpx</tspan></text>
+</g>
+      
+     <g id="labels-foid-rich-refined" pointer-events="none">  
+     
+     <text x="85" y="162" class="gt-label-main" transform="rotate(0, 85, 162)">MONZOSIENITA FOID.<tspan x="85" dy="2.2" class="gt-label-sub">(Bt, Hbl, Px)</tspan></text>
+     <text x="115" y="162" class="gt-label-main" transform="rotate(0, 115, 162)"> MONZODIORITA FOID.<tspan x="115" dy="2.2" class="gt-label-sub">(Px, Hbl, Bt)</tspan></text>
+     
+</g> 
+                      
+                      <g id="percentage-labels">
+    					<text x="64" y="85" transform="rotate(292, 64, 85)" text-anchor="middle" class="halo">10</text>
+  				  		<text x="64" y="85" transform="rotate(292, 64, 85)" text-anchor="middle" class="numero">10</text>
+    
+    					<text x="87" y="85" transform="rotate(285, 87, 85)" text-anchor="middle" class="halo">35</text>
+    					<text x="87" y="85" transform="rotate(285, 87, 85)" text-anchor="middle" class="numero">35</text>
+
+    					<text x="115" y="85" transform="rotate(260, 115, 85)" text-anchor="middle" class="halo">65</text>
+    					<text x="115" y="85" transform="rotate(260, 115, 85)" text-anchor="middle" class="numero">65</text>
+
+    					<text x="138" y="85" transform="rotate(250, 138, 85)" text-anchor="middle" class="halo">90</text>
+    					<text x="138" y="85" transform="rotate(250, 138, 85)" text-anchor="middle" class="numero">90</text>
+
+      
+    					<text x="111" y="26" transform="rotate(0, 111, 26)" text-anchor="end" class="numero">90</text>      					
+    					<text x="89" y="26" transform="rotate(0, 89, 26)" text-anchor="start" class="numero">90</text>
+    					<text x="132" y="57" transform="rotate(0, 132, 57)" text-anchor="end" class="numero">60</text>      					
+    					<text x="68" y="57" transform="rotate(0, 68, 57)" text-anchor="start" class="numero">60</text>
+      					<text x="161" y="100" transform="rotate(0, 161, 100)" text-anchor="end" class="numero">20</text>      					
+    					<text x="39" y="100" transform="rotate(0, 39, 100)" text-anchor="start" class="numero">20</text>
+      					<text x="169" y="115" transform="rotate(0, 169, 115)" text-anchor="end" class="numero">5</text>      					
+    					<text x="31" y="115" transform="rotate(0, 31, 115)" text-anchor="start" class="numero">5</text>
+     					<text x="167" y="132" transform="rotate(0, 1667, 132)" text-anchor="end" class="numero">10</text>      					
+    					<text x="33" y="132" transform="rotate(0, 33, 132)" text-anchor="start" class="numero">10</text>
+      					<text x="132" y="185" transform="rotate(0, 132, 185)" text-anchor="end" class="numero">60</text>      					
+    					<text x="68" y="185" transform="rotate(0, 68, 185)" text-anchor="start" class="numero">60</text>
+      					<text x="111" y="215" transform="rotate(0, 111, 215)" text-anchor="end" class="numero">90</text>      					
+    					<text x="89" y="215" transform="rotate(0, 89, 215)" text-anchor="start" class="numero">90</text>   
+                        </g>
+                  
+                        <path d="M100,15 L30,120 L100,225 L170,120 Z" fill="none" stroke="#052c52" stroke-width="0.0"/>
+                        <line x1="30" y1="120" x2="170" y2="120" stroke="#052c52" stroke-width="0"/>
+                       
+                      <g id="muestras-guardadas-layer"></g> 
+      <g id="cursor-activo-container" style="pointer-events: none;">
+    <use id="cursor-dinamico" href="#sym-1" x="96.5" y="116.5" width="5" height="5" style="color: #e74c3c; opacity: 0.8;" />
+</g>                </svg>
+                  
+                  <div id="container-muestras" style="padding: 15px; background: white; border-top: 1px solid #ddd; margin-top: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="font-size: 12px; color: #052c52; margin:0;">PROYECTO: <span id="count-txt">0</span>/10 MUESTRAS</h3>
+        <div style="display:flex; gap:5px;">
+            <button onclick="exportarExcel()" style="padding:5px 10px; font-size:10px; background:#2980b9; color:white; border:none; border-radius:4px; cursor:pointer;">EXCEL</button>
+            <button onclick="exportarImagen()" style="padding:5px 10px; font-size:10px; background:#8e44ad; color:white; border:none; border-radius:4px; cursor:pointer;">IMAGEN</button>
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        <table style="width:100%; font-size:10px; border-collapse: collapse; text-align: center;">
+            <thead>
+    <tr style="background: #f1f5f9; color: #052c52; border-bottom: 2px solid #3498db;">
+        <th style="padding: 10px 4px; font-size: 11px; text-transform: uppercase;">ID</th>
+        <th style="font-size: 11px; text-transform: uppercase;">Sym</th>
+        <th style="font-size: 11px; text-transform: uppercase;">Q'</th>
+        <th style="font-size: 11px; text-transform: uppercase;">A'</th>
+        <th style="font-size: 11px; text-transform: uppercase;">P'</th>
+        <th style="text-align: left; padding-left: 10px; font-size: 11px; text-transform: uppercase;">Roca</th>
+        <th style="font-size: 11px; text-transform: uppercase;">Elim.</th>
+    </tr>
+</thead>
+            <tbody id="lista-muestras-body"></tbody>
+        </table>
+    </div>
+</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+   <div id="tab-mafic" class="tab-content-master">
+    <div id="gt-app-mafic" style="margin-top: 0; position: relative;">
+
+        <div class="gt-overlay-inputs">
+            <div>
+                <label class="gt-label">Plagioclasa (An)</label>
+                <input type="number" id="an-in" value="45" oninput="maficUpdate()" class="gt-field">
+            </div>
+            <div>
+                <label class="gt-label">Ortopiroxeno (Opx)</label>
+                <input type="number" id="opx-in" value="45" oninput="maficUpdate()" class="gt-field">
+            </div>
+            <div>
+                <label class="gt-label">Clinopiroxeno (Cpx)</label>
+                <input type="number" id="cpx-in" value="10" oninput="maficUpdate()" class="gt-field">
+            </div>
+        </div>
+        <div class="gt-res-panel" style="background:#1a5276">
+            <div id="mafic-name" style="font-size: 15px; font-weight: 800;">-</div>
+            <div id="mafic-stats" style="font-size: 12px; font-weight: bold"></div>
+        </div>
+        <div class="gt-main-m">
+            <div class="gt-col-right">
+                <svg viewBox="-5 -5 110 100" style="width: 100%; height: auto; display: block;">
+                    <g id="mafic-geometry" style="fill-opacity: 0.95; stroke: #ffffff; stroke-width: 0.2;">
+                        <path d="M50,0 L45,8.66 L55,8.66 Z" fill="#85ACAB" />
+                        <path d="M0,86.6025 L5,77.9422 L10,86.6025 Z" fill="#00895B" />
+                        <path d="M100,86.6025 L95,77.9422 L90,86.6025 Z" fill="#828713" />
+                        <path d="M50,8.66 L45,8.66 L5,77.9422 L7.5,82.27 Z" fill="#497568" />
+                        <path d="M50,8.66 L55,8.66 L95,77.9422 L92.5,82.2723 Z" fill="#787266" />
+                        <path d="M50,8.66 L50,77.9422 L9.64,77.9422 Z" fill="#737C69" />
+                        <path d="M50,8.66 L50,77.9422 L90.36,77.9422 Z" fill="#737C69" />
+                        <path d="M10,86.6025 L7.5,82.27 L9.64,77.9422 L90.36,77.9422 L92.5,82.2723 L90,86.6025 Z" fill="#877F68" />
+                    </g>
+
+                    <g id="labels-mafic">
+                        <text x="50" y="5" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">ANORTOSITA<tspan x="50" dy="2.2" style="font-size: 80%; font-weight: normal;">(Ca, Hbl)</tspan></text>
+                        <text x="28" y="45" class="gt-label-main" transform="rotate(-60, 28, 45)" style="font-size: 3px;">NORITA<tspan class="gt-label-sub" style="font-size: 80%;">(OI, Crm, Mgn)</tspan></text>
+                        <text x="36" y="55" class="gt-label-main">Norita con CPX<tspan x="36" dy="2.2" class="gt-label-sub">(OI)</tspan></text>
+                        <text x="75" y="50" class="gt-label-main" transform="rotate(60, 75, 50)" style="font-size: 3px;">GABRO<tspan class="gt-label-sub" style="font-size: 80%;">(OI, Hbl, Grt, Mgn)</tspan></text>
+
+                        <text x="62" y="55" class="gt-label-main">Gabro con Opx<tspan x="62" dy="2.2" class="gt-label-sub">(OI)</tspan></text>
+                        <text x="50" y="83" class="gt-label-main" style="font-size: 2.5px;">WEBSTERITA CON PLAGIOCLASA</text>
+                        <text x="50" y="65" class="gt-label-main" style="font-size: 3px;">GABRONORITA</text>
+                    </g>
+
+                    <text x="50" y="-2" font-size="3.5" font-weight="800" fill="#1a5276" text-anchor="middle">AN</text>
+                    <text x="0" y="92" font-size="3.5" font-weight="800" fill="#1a5276" text-anchor="middle">OPX</text>
+                    <text x="5" y="83" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">Ortopiroxeno<tspan x="5" dy="2.2" style="font-size: 80%; font-weight: normal;">(OI, Crm)</tspan></text>
+                    <text x="100" y="92" font-size="3.5" font-weight="800" fill="#1a5276" text-anchor="middle">CPX</text>
+                    <text x="95" y="83" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">Clinopiroxeno<tspan x="95" dy="2.2" style="font-size: 80%; font-weight: normal;">(OI, Crm)</tspan></text>
+
+                    <circle id="mafic-marker" cx="50" cy="50" r="1.2" fill="#e74c3c" stroke="white" stroke-width="0.3" style="transition: all 0.3s ease;" />
+
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+   <div id="tab-ultra" class="tab-content-master">
+    <div id="gt-app-ultra" style="position: relative;">
+
+        <div class="gt-overlay-inputs">
+            <div><label class="gt-label">Olivino (Ol)</label><input type="number" id="ol-u-in" value="60" oninput="ultraUpdate()" class="gt-field"></div>
+            <div><label class="gt-label">Ortopiroxeno (Opx)</label><input type="number" id="opx-u-in" value="20" oninput="ultraUpdate()" class="gt-field"></div>
+            <div><label class="gt-label">Clinopiroxeno (Cpx)</label><input type="number" id="cpx-u-in" value="20" oninput="ultraUpdate()" class="gt-field"></div>
+        </div>
+        <div class="gt-res-panel">
+            <div id="ultra-rock-name" style="font-size: 15px; font-weight: 800;">-</div>
+            <div id="ultra-stats" style="font-size: 12px; font-weight: bold;"></div>
+        </div>
+        <div class="gt-main-m">
+            <div class="gt-col-right">
+                <svg viewBox="-5 -5 110 100" style="width: 100%; height: auto;">
+                    
+                    <g id="ultra-geometry-corregida" style="fill-opacity: 0.95; stroke: #ffffff; stroke-width: 0.2;">
+                        <path id="area-dunita" d="M50,0 L45,8.66 L55,8.66 Z" fill="#54B518" />
+                        <path id="area-lherzolita" d="M50,8.66 L75,51.9615 L25,51.9615 Z" fill="#698D50" />
+                        <path id="area-wehrlita" d="M45,8.66 L50,8.66 L25,51.9615 L22.5,47.6314 Z" fill="#90B518" />
+                        <path id="area-harzburgita" d="M55,8.66 L50,8.66 L75,51.9615 L77.5,47.6314 Z" fill="#0AB33E" />
+
+                        <path id="web-central-ol" d="M25,51.9615 L75,51.9615 L92.5,82.2723 L7.5,82.2723 Z" fill="#7D8C51" />
+
+                        <path id="web-base-ol" d="M7.5,82.2723 L92.5,82.2723 L90,86.6025 L10,86.6025 Z" fill="#87814F" />
+
+                        <path id="area-cpx-ol" d="M22.5,47.6314 L5,77.9422 L10,86.6025 L7.5,82.2723 L25,51.9615 Z" fill="#B0B618" />
+                        <path id="area-opx-ol" d="M77.5,47.6314 L95,77.9422 L90,86.6025 L92.5,82.2723 L75,51.9615 Z" fill="#01B578" />
+                        <path id="area-cpx-pura" d="M0,86.6025 L10,86.6025 L5,77.9422 Z" fill="#828713" />
+                        <path id="area-opx-pura" d="M100,86.6025 L90,86.6025 L95,77.9422 Z" fill="#00895B" />
+                    </g> <g id="labels-ultra">
+                        <text x="50" y="5" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">DUNITA<tspan x="50" dy="2.2" style="font-size: 80%; font-weight: normal;">Crm, grt, mgn</tspan></text>
+                        
+                        <text x="38" y="27" class="gt-label-main" transform="rotate(-60, 38, 27)" style="font-size: 3px;">WEHRLITA<tspan class="gt-label-sub" style="font-size: 80%;"> (Crm/Grt, Mgn)</tspan></text>
+                        
+                        <text x="50" y="35" class="gt-label-main" style="font-size: 3px; text-anchor: middle;">LHERZOLITA<tspan x="50" dy="2.2" style="font-size: 80%; font-weight: normal;">Crm, Grt</tspan></text>
+                        
+                        <text x="64" y="30" class="gt-label-main" transform="rotate(60, 64, 30)" style="font-size: 3px;">HARZBURGITA<tspan class="gt-label-sub" style="font-size: 80%;"> ±Crm, (Grt)</tspan></text>
+
+                        <text x="50" y="60" class="gt-label-main" style="font-size: 3px; text-anchor: middle;">OL-WEBSTERITA<tspan x="50" dy="2.2" style="font-size: 80%; font-weight: normal;">Crm, Grt</tspan></text>
+                        
+                        <text x="50" y="85" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">WEBSTERITA<tspan x="50" dy="2.2" class="gt-label-sub" style="font-size: 80%; font-weight: normal;">(Crm, Grt)</tspan></text>
+                        
+                        <text x="50" y="73" class="gt-label-main" style="font-size: 3.5px; text-anchor: middle;">PIROXENITA</text>
+
+                        <text x="5" y="83" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">Ortopiroxenita<tspan x="5" dy="2.2" style="font-size: 80%; font-weight: normal;">(OI, Crm)</tspan></text>
+                        
+                        <text x="95" y="83" class="gt-label-main" style="font-size: 2.5px; text-anchor: middle;">Clinopiroxenita<tspan x="95" dy="2.2" style="font-size: 80%; font-weight: normal;">(OI, Crm)</tspan></text>
+                    </g>
+
+                    <circle id="ultra-marker" cx="50" cy="43" r="1.5" fill="#e74c3c" stroke="white" stroke-width="0.5" style="transition: all 0.3s ease;" />
+
+                    <text x="50" y="-2" font-size="3.5" fill="#052c52" text-anchor="middle" font-weight="bold">OI</text>
+                    <text x="0" y="92" font-size="3.5" fill="#052c52" text-anchor="middle" font-weight="bold">CPX</text>
+                    <text x="100" y="92" font-size="3.5" fill="#052c52" text-anchor="middle" font-weight="bold">OPX</text>
+                </svg>
+            </div>
+        </div>
+       </div>
+     </div>
+</div>
+<script>
+    /* NAVEGACIÓN GENERAL */
+    function maficUpdate() {
+    // 1. Captura de valores
+    let an = parseFloat(document.getElementById('an-in').value) || 0;
+    let opx = parseFloat(document.getElementById('opx-in').value) || 0;
+    let cpx = parseFloat(document.getElementById('cpx-in').value) || 0;
+
+    // 2. Normalización al 100%
+    let s = an + opx + cpx || 1;
+    let pP = an / s;   // Proporción Plagioclasa (0 a 1)
+    let pO = opx / s;  // Proporción Ortopiroxeno
+    let pC = cpx / s;  // Proporción Clinopiroxeno
+
+    // 3. Coordenadas Baricéntricas Reales (Base 100, Altura 86.6025)
+    // x = (Proporción Derecha + 0.5 * Proporción Ápice) * Lado
+    // y = Altura * (1 - Proporción Ápice)
+    let x = (pC + 0.5 * pP) * 100;
+    let y = 86.6025 * (1 - pP);
+
+    // 4. Posicionamiento del marcador
+    const marker = document.getElementById('mafic-marker');
+    marker.setAttribute('cx', x);
+    marker.setAttribute('cy', y);
+
+    // 5. Lógica de Clasificación IUGS (Sincronizada con tus líneas al 10% y 90%)
+    let name = "-";
+    let pxSum = pO + pC;
+    let opxRatio = (pO / (pxSum + 0.0001)) * 100; // Porcentaje de Opx respecto al total de Piroxenos
+
+    if (pP > 0.9) {
+        name = "Anortosita";
+    } else if (pP < 0.1) {
+        // Campo de las Piroxenitas (Base del triángulo)
+        if (opxRatio > 90) name = "Ortopiroxenita";
+        else if (opxRatio < 10) name = "Clinopiroxenita";
+        else name = "Websterita";
+    } else {
+        // Campo de los Gabros / Noritas (10% - 90% Plagioclasa)
+        if (opxRatio > 95) name = "Norita";
+        else if (opxRatio > 50) name = "Norita con Clinopiroxeno";
+        else if (opxRatio > 5) name = "Gabbro con Ortopiroxeno";
+        else name = "Gabbro / Diorita";
+    }
+
+    // 6. Actualización de textos en la interfaz
+    document.getElementById('mafic-name').innerText = name.toUpperCase();
+    document.getElementById('mafic-stats').innerText = 
+        `An: ${(pP*100).toFixed(1)}% | Opx: ${(pO*100).toFixed(1)}% | Cpx: ${(pC*100).toFixed(1)}%`;
+}
+
+    /* MOTOR QAPF BARICÉNTRICO */
+function getXY(q, a, p, f) {
+    let sum = (q + a + p + f) || 1;
+    let nQ = (q / sum) * 100;
+    let nF = (f / sum) * 100;
+    let ratioP = p / (a + p + 0.0001); // Relación P' / (A+P)
+
+    const Y_BASE = 120; // Línea A-P (0% Q)
+    const X_CENTRO = 100; 
+    let x, y;
+
+    if (nF === 0 || nQ > 0) {
+        // --- TRIÁNGULO SUPERIOR (CUARZO) ---
+        // 1. Mapeo de Y exacto según tus coordenadas SVG
+        if (nQ >= 90) y = 25.5 - ((nQ - 90) * (25.5 - 15) / 10);
+        else if (nQ >= 60) y = 57 - ((nQ - 60) * (57 - 25.5) / 30);
+        else if (nQ >= 20) y = 99 - ((nQ - 20) * (99 - 57) / 40);
+        else y = Y_BASE - (nQ * (Y_BASE - 99) / 20);
+
+        // 2. Mapeo de X (El ancho disminuye según sube en Y)
+        // La distancia total de lado a lado en el centro (y=120) es 140 (70 a cada lado)
+        let factorAncho = (y - 15) / 105; 
+        let semiAncho = 70 * factorAncho;
+        x = X_CENTRO + (ratioP * 2 - 1) * semiAncho;
+
+    } else {
+        // --- TRIÁNGULO INFERIOR (FOIDES) ---
+        // 1. Mapeo de Y
+        if (nF <= 10) y = Y_BASE + (nF * (130.5 - Y_BASE) / 10);
+        else if (nF <= 60) y = 130.5 + ((nF - 10) * (183 - 130.5) / 50);
+        else if (nF <= 90) y = 183 + ((nF - 60) * (214.5 - 183) / 30);
+        else y = 214.5 + ((nF - 90) * (225 - 214.5) / 10);
+
+        // 2. Mapeo de X
+        let factorAncho = (225 - y) / 105;
+        let semiAncho = 70 * factorAncho;
+        x = X_CENTRO + (ratioP * 2 - 1) * semiAncho;
+    }
+
+    return { x: x, y: y };
+}
+
+
+	function actualizarCursorGuia() {
+    const cursor = document.getElementById('cursor-dinamico');
+    if (!cursor) return;
+    
+    // Si hay 1 muestra guardada, muestras.length es 1, 
+    // por lo tanto el cursor debe tomar configEstilos[1] (el segundo estilo)
+    const proximoIndice = muestras.length; 
+
+    if (proximoIndice < 10) {
+        const proximoEstilo = configEstilos[proximoIndice];
+        cursor.setAttribute('href', proximoEstilo.sym);
+        cursor.style.color = proximoEstilo.col;
+        cursor.style.opacity = "0.7";
+    } else {
+        cursor.style.display = "none"; // Ocultar si ya no hay más espacio
+    }
+}
+    function geoUpdate() {
+    const qIn = document.getElementById('q-in'), aIn = document.getElementById('a-in');
+    const pIn = document.getElementById('p-in'), fIn = document.getElementById('f-in');
+
+    let q = parseFloat(qIn.value) || 0, a = parseFloat(aIn.value) || 0;
+    let p = parseFloat(pIn.value) || 0, f = parseFloat(fIn.value) || 0;
+
+    // Exclusión inteligente Q vs F
+    if (q > 0 && f > 0) {
+        if (document.activeElement === qIn) { f = 0; fIn.value = 0; } 
+        else if (document.activeElement === fIn) { q = 0; qIn.value = 0; }
+    }
+
+    let s = q + a + p + f;
+    
+    // CAPTURA DEL CURSOR
+    const cursor = document.getElementById('cursor-dinamico');
+
+    // SI NO HAY VALORES: Ocultamos y limpiamos textos
+    if (s === 0) {
+        if (cursor) cursor.style.display = "none";
+        document.getElementById('gt-rock-name').innerText = "-";
+        document.getElementById('gt-norm-stats').innerText = "Ingrese valores para clasificar";
+        return; 
+    }
+
+    // Cálculos de normalización
+    let qN = (q / s) * 100, fN = (f / s) * 100, pR = (p / (a + p + 0.0001)) * 100; 
+    let rockName = "Indefinido";
+
+    // --- 1. TRIÁNGULO SUPERIOR (CUARZO) ---
+    
+    // CAMPO 1: Q > 90%
+    if (qN > 90) {
+        rockName = "1a. CUARZOLITA";
+    } 
+    // CAMPO 2: Q 60-90%
+    else if (qN > 60) {
+        rockName = "1b. GRANITOIDE RICO EN CUARZO";
+    } 
+    // CAMPOS 3-7: Q 20-60% (Familia Granítica)
+    else if (qN > 20) {
+        if (pR < 10) rockName = "2. GRANITO DE F. ALCALINO";
+        else if (pR < 35) rockName = "3a. SIENOGRANITO";
+        else if (pR < 65) rockName = "3b. MONZOGRANITO";
+        else if (pR < 90) rockName = "4. GRANODIORITA";
+        else rockName = "5. TONALITA";
+    } 
+    // CAMPOS 8-12: Q 5-20% (Con Cuarzo)
+    else if (qN > 5) {
+        if (pR < 10) rockName = "6*. SIENITA DE F.A. CON CUARZO";
+        else if (pR < 35) rockName = "7*. SIENITA CON CUARZO";
+        else if (pR < 65) rockName = "8*. MONZONITA CON CUARZO";
+        else if (pR < 90) rockName = "9*. MONZODIORITA CON CUARZO";
+        else rockName = "10*. DIORITA/GABRO CON CUARZO";
+    } 
+
+    // --- 2. BANDA CENTRAL (SATURADA) ---
+    // Q 0-5% y F 0-10% (Sin Cuarzo ni Foides esenciales)
+    else if (fN <= 10) { 
+        if (pR < 10) rockName = "6. SIENITA DE F. ALCALINO";
+        else if (pR < 35) rockName = "7. SIENITA";
+        else if (pR < 65) rockName = "8. MONZONITA";
+        else if (pR < 90) rockName = "9. MONZODIORITA / MONZOGABRO";
+        else rockName = "10. DIORITA / GABRO / ANORTOSITA";
+    } 
+
+    // --- 3. TRIÁNGULO INFERIOR (FOIDES) ---
+    
+    // CAMPOS 11-15: F 10-60% (Sienitas y Dioritas Foidíferas)
+    else if (fN <= 60) {
+        if (pR < 10) rockName = "11. SIENITA DE F.A. FOIDÍFERA";
+        else if (pR < 35) rockName = "12. SIENITA FOIDÍFERA";
+        else if (pR < 65) rockName = "13. MONZONITA FOIDÍFERA";
+        else if (pR < 90) rockName = "14. MONZODIORITA FOIDÍFERA";
+        else rockName = "15. DIORITA/GABRO FOIDÍFERA";
+    } 
+    // CAMPOS 15-Sub: F > 60% (FOIDOLITAS - ¡Aquí están las 5 que faltaban!)
+    else {
+        if (pR < 10) rockName = "15c. FOIDOLITA DE F. ALCALINO";
+        else if (pR < 35) rockName = "15c. FOIDOLITA SIENÍTICA";
+        else if (pR < 65) rockName = "15c. FOIDOLITA MONZONÍTICA";
+        else if (pR < 90) rockName = "15c. FOIDOLITA MONZODIORÍTICA";
+        else rockName = "15c. FOIDOLITA DIORÍTICA/GABROICA";
+    }
+
+    // POSICIONAMIENTO Y VISIBILIDAD
+    let pos = getXY(q, a, p, f);
+if (cursor) {
+    // Si el símbolo mide 7, restamos 2.5 para que el centro sea exacto
+    cursor.setAttribute('x', pos.x - 2.5); 
+    cursor.setAttribute('y', pos.y - 2.5);
+    cursor.style.display = "block";
+}
+    
+    // Actualización de textos en la interfaz
+document.getElementById('gt-rock-name').innerText = rockName;
+document.getElementById('gt-norm-stats').innerText = 
+    `Norm: Q:${qN.toFixed(1)}% | F:${fN.toFixed(1)}% | Relación Feldespatos (P'): ${pR.toFixed(1)}%`;
+}
+  function ultraUpdate() {
+    // 1. Captura de datos
+    let ol = parseFloat(document.getElementById('ol-u-in').value) || 0;
+    let opx = parseFloat(document.getElementById('opx-u-in').value) || 0;
+    let cpx = parseFloat(document.getElementById('cpx-u-in').value) || 0;
+
+    // 2. Normalización técnica al 100%
+    let total = ol + opx + cpx || 1;
+    let pOl = ol / total;
+    let pOpx = opx / total;
+    let pCpx = cpx / total;
+
+    // 3. Proyección Baricéntrica (Lado 100, Altura 86.6025)
+    // Usamos pOpx como el eje X (derecha) y pOl como el eje Y (ápice)
+    let posX = (pOpx + 0.5 * pOl) * 100; 
+    let posY = 86.6025 * (1 - pOl);
+
+    // 4. Movimiento del Marcador
+    const marker = document.getElementById('ultra-marker');
+    if (marker) {
+        marker.setAttribute('cx', posX);
+        marker.setAttribute('cy', posY);
+    }
+
+    // 5. Identificación de Campo (Clasificación IUGS Detallada)
+    let rockName = "Identificando...";
+    let pxSum = pOpx + pCpx;
+    let opxRel = (pOpx / (pxSum + 0.0001)) * 100; // Relación Opx en el total de Px
+
+    if (pOl >= 0.90) {
+        rockName = "Dunita";
+    } else if (pOl >= 0.40) {
+        // PERIDOTITAS
+        if (opxRel > 90) rockName = "Harzburgita";
+        else if (opxRel < 10) rockName = "Wehrlita";
+        else rockName = "Lherzolita";
+    } else if (pOl >= 0.05) {
+        // PIROXENITAS OLIVÍNICAS
+        if (opxRel > 90) rockName = "Ortopiroxenita Olivínica";
+        else if (opxRel < 10) rockName = "Clinopiroxenita Olivínica";
+        else rockName = "Websterita Olivínica";
+    } else {
+        // PIROXENITAS (Ol < 5%)
+        if (opxRel > 90) rockName = "Ortopiroxenita";
+        else if (opxRel < 10) rockName = "Clinopiroxenita";
+        else rockName = "Websterita";
+    }
+
+    // 6. Actualización de Interfaz
+    document.getElementById('ultra-rock-name').innerText = rockName.toUpperCase();
+    document.getElementById('ultra-stats').innerText = 
+        `Ol: ${(pOl*100).toFixed(1)}% | Opx: ${(pOpx*100).toFixed(1)}% | Cpx: ${(pCpx*100).toFixed(1)}%`;
+}
+  
+    /* NAVEGACIÓN GENERAL CORREGIDA */
+function openPetroTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content-master");
+    for (i = 0; i < tabcontent.length; i++) { 
+        tabcontent[i].style.display = "none"; 
+    }
+    tablinks = document.getElementsByClassName("tab-btn-master");
+    for (i = 0; i < tablinks.length; i++) { 
+        tablinks[i].className = tablinks[i].className.replace(" active", ""); 
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+
+    // RE-INICIALIZAR al cambiar de pestaña para asegurar el posicionamiento
+    if(tabName === 'tab-mafic') maficUpdate();
+    if(tabName === 'tab-ultra') ultraUpdate();
+    if(tabName === 'tab-qapf') geoUpdate();
+}
+let muestras = [];
+const configEstilos = [
+    { sym: '#sym-1', col: '#e74c3c' }, { sym: '#sym-2', col: '#3498db' },
+    { sym: '#sym-3', col: '#f1c40f' }, { sym: '#sym-4', col: '#9b59b6' },
+    { sym: '#sym-1', col: '#e67e22' }, { sym: '#sym-2', col: '#1abc9c' },
+    { sym: '#sym-3', col: '#34495e' }, { sym: '#sym-4', col: '#27ae60' },
+    { sym: '#sym-1', col: '#d35400' }, { sym: '#sym-2', col: '#2c3e50' }
+];
+
+function registrarMuestra() {
+    let qIn = document.getElementById('q-in'), aIn = document.getElementById('a-in');
+    let pIn = document.getElementById('p-in'), fIn = document.getElementById('f-in');
+
+    let q = parseFloat(qIn.value) || 0;
+    let a = parseFloat(aIn.value) || 0;
+    let p = parseFloat(pIn.value) || 0;
+    let f = parseFloat(fIn.value) || 0;
+
+    if (q + a + p + f === 0) return;
+    if (muestras.length >= 10) return alert("Límite alcanzado");
+
+    const cursor = document.getElementById('cursor-dinamico');
+    let sum = q + a + p + f;
+
+    // --- CAMBIO CLAVE AQUÍ ---
+    // Usamos el estilo que el cursor TIENE actualmente para guardarlo
+    let estiloParaGuardar = configEstilos[muestras.length];
+
+    muestras.push({
+        id: muestras.length + 1,
+        qn: ((q/sum)*100).toFixed(1),
+        an: ((a/sum)*100).toFixed(1),
+        pn: ((p/sum)*100).toFixed(1),
+        fn: ((f/sum)*100).toFixed(1),
+        roca: document.getElementById('gt-rock-name').innerText,
+        x: parseFloat(cursor.getAttribute('x')) + 2.5,
+        y: parseFloat(cursor.getAttribute('y')) + 2.5,
+        estilo: estiloParaGuardar
+    });
+
+    // --- LIMPIEZA DE INPUTS ---
+    qIn.value = ""; aIn.value = ""; pIn.value = ""; fIn.value = "";
+    document.getElementById('gt-rock-name').innerText = "-";
+    document.getElementById('gt-norm-stats').innerText = "Muestra " + muestras.length + " registrada.";
+
+    // --- RESET DE POSICIÓN DEL CURSOR ---
+    // Lo movemos al centro para que no se quede encima del punto que acabamos de registrar
+    cursor.setAttribute('x', 97.5); 
+    cursor.setAttribute('y', 117.5);
+    
+    // --- ACTUALIZACIÓN VISUAL ---
+    geoUpdate();
+  renderMuestras();      // Dibuja los puntos "congelados"
+    actualizarCursorGuia(); // Cambia el cursor al SIGUIENTE símbolo de la lista
+}
+function renderMuestras() {
+    const layer = document.getElementById('muestras-guardadas-layer');
+    const body = document.getElementById('lista-muestras-body');
+    
+    // 1. Dibuja símbolos fijos en el mapa
+    layer.innerHTML = muestras.map(m => `
+        <use href="${m.estilo.sym}" x="${m.x - 2.5}" y="${m.y - 2.5}" width="5" height="5" style="color: ${m.estilo.col}" />
+        <text x="${m.x}" y="${m.y - 4}" font-size="3" font-weight="bold" text-anchor="middle" fill="black">${m.id}</text>
+    `).join('');
+
+    // 2. Actualiza la tabla inferior
+    body.innerHTML = muestras.map((m, i) => `
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 8px 4px;">${m.id}</td>
+            <td>
+                <svg width="14" height="14" style="vertical-align: middle;">
+                    <use href="${m.estilo.sym}" x="0" y="0" width="12" height="12" style="color: ${m.estilo.col}" />
+                </svg>
+            </td>
+            <td>${m.qn}%</td>
+            <td>${m.an}%</td>
+            <td>${m.pn}%</td>
+            <td style="text-align:left; font-weight:bold; font-size:9px;">${m.roca}</td>
+            <td>
+                <button onclick="muestras.splice(${i},1); renderMuestras(); actualizarCursorGuia();" 
+                        style="color:red; border:none; background:none; cursor:pointer; font-weight:bold; font-size:14px;">✕</button>
+            </td>
+        </tr>`).join('');
+    
+    document.getElementById('count-txt').innerText = muestras.length;
+}
+	
+const btnHelp = document.getElementById('btn-ayuda-flotante');
+let isDragging = false;
+let currentX, currentY, initialX, initialY;
+let xOffset = 0, yOffset = 0;
+
+// Eventos para Celulares (Touch)
+btnHelp.addEventListener("touchstart", dragStart, false);
+btnHelp.addEventListener("touchend", dragEnd, false);
+btnHelp.addEventListener("touchmove", drag, false);
+
+function dragStart(e) {
+    initialX = e.touches[0].clientX - xOffset;
+    initialY = e.touches[0].clientY - yOffset;
+    isDragging = true;
+}
+
+function dragEnd() {
+    initialX = currentX;
+    initialY = currentY;
+    // Delay para diferenciar el arrastre de un toque simple
+    setTimeout(() => { isDragging = false; }, 50);
+}
+
+function drag(e) {
+    if (isDragging) {
+        e.preventDefault();
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+        xOffset = currentX;
+        yOffset = currentY;
+        
+        btnHelp.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+    }
+}
+
+// Modificación a tu función de toggle
+function toggleGuia() {
+    if (isDragging) return; // Si se estaba moviendo, no abre la ayuda
+    const m = document.getElementById('modal-guia');
+    const isVisible = m.style.display === 'flex';
+    m.style.display = isVisible ? 'none' : 'flex';
+    document.body.style.overflow = isVisible ? 'auto' : 'hidden';
+}
+
+function exportarExcel() {
+    let csv = "ID,Q_norm,A_norm,P_norm,F_norm,Roca\n" + muestras.map(m => `${m.id},${m.qn},${m.an},${m.pn},${m.fn},"${m.roca}"`).join("\n");
+    const link = document.createElement("a");
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    link.download = "Proyecto_Geotech.csv";
+    link.click();
+}
+
+function exportarImagen() {
+    const svg = document.getElementById('gt-canvas');
+    const svgClon = svg.cloneNode(true);
+    
+    // 1. Limpieza de elementos dinámicos
+    const cursor = svgClon.getElementById('cursor-dinamico');
+    if (cursor) cursor.remove();
+    const container = svgClon.getElementById('cursor-activo-container');
+    if (container) container.remove();
+
+    // 2. AJUSTE DE PORCENTAJES (Ejes del diamante)
+    const grupoPorcentajes = svgClon.getElementById('percentage-labels');
+    if (grupoPorcentajes) {
+        const numEjes = grupoPorcentajes.querySelectorAll('.numero, .halo');
+        numEjes.forEach(n => {
+            n.setAttribute('font-size', '2.5px'); // Tamaño idéntico al que ves en pantalla
+            n.style.fontFamily = "Arial, sans-serif";
+            // No tocamos el text-anchor aquí para no perder la rotación original
+        });
+    }
+
+    // 3. AJUSTE DE NOMBRES DE ROCAS (Centrados)
+    const gruposRocas = ['labels-center-strip-refined', 'labels-foid-rich-refined'];
+    gruposRocas.forEach(id => {
+        const grupo = svgClon.getElementById(id);
+        if (!grupo) return;
+        const textos = grupo.querySelectorAll('text');
+        textos.forEach(t => {
+            t.setAttribute('text-anchor', 'middle');
+            t.setAttribute('font-size', '2.2px');
+            const tspans = t.querySelectorAll('tspan');
+            tspans.forEach(span => {
+                span.setAttribute('font-size', '1.6px');
+                span.setAttribute('text-anchor', 'middle');
+                if(t.getAttribute('x')) span.setAttribute('x', t.getAttribute('x'));
+                span.setAttribute('dy', '2.2');
+            });
+        });
+    });
+
+    // 4. Limpieza de capas de otros diagramas
+    const capasAEliminar = ['ultra-labels', 'labels-ultra', 'labels-mafic'];
+    capasAEliminar.forEach(id => {
+        const capa = svgClon.getElementById(id);
+        if (capa) capa.remove();
+    });
+
+    // 5. Renderizado a 1200px
+    const svgData = new XMLSerializer().serializeToString(svgClon);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1200; canvas.height = 1400;
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    
+    img.onload = function() {
+        ctx.fillStyle = "white"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 100, 100, 1000, 1200);
+        
+        const link = document.createElement("a");
+        link.download = "Reporte_Geotech_Final.png";
+        link.href = canvas.toDataURL("image/png", 1.0);
+        link.click();
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+}
+window.onload = function() {
+    geoUpdate(); // Calcula la posición inicial
+    actualizarCursorGuia(); // ESTO asegura que el cursor tenga forma y color desde el inicio
+    
+    setTimeout(() => {
+        maficUpdate();
+        ultraUpdate();
+    }, 100);
+};
+</script>
+<button id="btn-ayuda-flotante" onclick="toggleGuia()">?</button>
+
+<div id="modal-guia" onclick="toggleGuia()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px;">
+    
+    <div style="background: white; border-radius: 12px; max-width: 480px; width: 100%; padding: 20px; position: relative;" onclick="event.stopPropagation()">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="margin: 0; font-size: 13px; color: #052c52; font-weight: 800;">CARTA DE ESTIMACIÓN VISUAL</h4>
+            <button onclick="toggleGuia()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+        </div>
+
+        <img src="./estimacion_visual.jpg" 
+             style="width: 100%; border-radius: 6px; border: 1px solid #ddd;" 
+             alt="Guía de porcentajes minerales">
+
+        <p style="font-size: 10px; color: #555; text-align: center; margin-top: 12px; line-height: 1.4;">
+            Compara la textura de tu muestra con esta carta para obtener valores de <b>Q-A-P-F</b> más precisos antes de ingresarlos.
+        </p>
+    </div>
+</div>
+</div>
+</body>
+</html>
