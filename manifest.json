@@ -1,6 +1,6 @@
 {
-  "name": "Geotech Petro Master",
-  "short_name": "PetroMaster",
+  "name": "LitoTech Pocket: Clasificador de Rocas Plutónicas (IUGS)",
+  "short_name": "LitoTech",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#052c52",
