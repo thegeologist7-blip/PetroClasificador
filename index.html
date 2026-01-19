@@ -978,7 +978,7 @@ function exportarExcel() {
     let csv = "ID,Q_norm,A_norm,P_norm,F_norm,Roca\n" + muestras.map(m => `${m.id},${m.qn},${m.an},${m.pn},${m.fn},"${m.roca}"`).join("\n");
     const link = document.createElement("a");
     link.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-    link.download = "Proyecto_Geotech.csv";
+    link.download = "Proyecto_Litotech.csv";
     link.click();
 }
 
@@ -1042,7 +1042,7 @@ function exportarImagen() {
         ctx.drawImage(img, 100, 100, 1000, 1200);
         
         const link = document.createElement("a");
-        link.download = "Reporte_Geotech_Final.png";
+        link.download = "Reporte_Litotech.png";
         link.href = canvas.toDataURL("image/png", 1.0);
         link.click();
     };
@@ -1096,6 +1096,7 @@ window.onload = function() {
 </body>
 
 </html>
+
 
 
 
