@@ -1,4 +1,4 @@
-const CACHE_NAME = 'petromaster-v2';
+const CACHE_NAME = 'petromaster-v3';
 
 const ASSETS_TO_CACHE = [
   './',
