@@ -1,14 +1,15 @@
-const CACHE_NAME = 'petromaster-v1';
+const CACHE_NAME = 'petromaster-v2';
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  // './icon-192.png',  <-- HE BORRADO ESTA LÍNEA QUE CAUSABA EL ERROR
+  './icon-512.png',     // Este sí lo tienes
   './Estimacion_Visual.jpg' 
 ];
 
-// 1. INSTALACIÓN: Guarda los archivos en caché
+// 1. INSTALACIÓN
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -16,10 +17,11 @@ self.addEventListener('install', (event) => {
         console.log('Abriendo caché...');
         return cache.addAll(ASSETS_TO_CACHE);
       })
+      .then(() => self.skipWaiting()) // Importante: fuerza la instalación inmediata
   );
 });
 
-// 2. ACTIVACIÓN: Limpia cachés viejas si actualizas la versión
+// 2. ACTIVACIÓN
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -30,16 +32,15 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Toma el control de la página inmediatamente
   );
 });
 
-// 3. FETCH: Sirve la App desde la caché si no hay internet
+// 3. FETCH
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Si está en caché, lo devuelve. Si no, lo pide a internet.
         return response || fetch(event.request);
       })
   );
