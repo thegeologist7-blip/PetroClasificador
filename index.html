@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="screen-orientation" content="portrait">
     <title>Geotech Petro Master</title>
+	<link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#052c52">
     <style>
     /* 1. MARCO PRINCIPAL: Edge-to-Edge para móvil */
     #master-petro-container {
@@ -1091,5 +1095,17 @@ window.onload = function() {
     </div>
 </div>
 </div>
+
+	<script>
+  // REGISTRO DEL SERVICE WORKER (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => console.log('PWA registrada con éxito:', reg.scope))
+        .catch((err) => console.log('Error al registrar PWA:', err));
+    });
+  }
+</script>
 </body>
+
 </html>
