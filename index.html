@@ -1060,22 +1060,27 @@ window.onload = function() {
 </script>
 
 
-<div id="modal-guia" onclick="toggleGuia()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px;">
+<div id="modal-guia" onclick="toggleGuia()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
     
-    <div style="background: white; border-radius: 12px; max-width: 450px; width: 90%; padding: 15px; position: relative; margin: auto; max-height: 85vh; overflow-y: auto;" onclick="event.stopPropagation()">
+    <div style="background: white; border-radius: 12px; max-width: 450px; width: 100%; padding: 0; position: relative; margin: auto; max-height: 85vh; overflow-y: auto; overflow-x: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
             <h4 style="margin: 0; font-size: 13px; color: #052c52; font-weight: 800;">CARTA DE ESTIMACIÓN VISUAL</h4>
-            <button onclick="toggleGuia()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+            <button onclick="toggleGuia()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; line-height: 1;">&times;</button>
         </div>
 
-        <img src="./estimacion_visual.jpg" 
-             style="width: 100%; border-radius: 6px; border: 1px solid #ddd;" 
-             alt="Guía de porcentajes minerales">
+        <div style="width: 100%; line-height: 0;">
+            <img src="./estimacion_visual.jpg" 
+                 style="width: 100%; display: block; margin: 0; border: none;" 
+                 alt="Guía de porcentajes minerales">
+        </div>
 
-        <p style="font-size: 10px; color: #555; text-align: center; margin-top: 12px; line-height: 1.4;">
-            Compara la textura de tu muestra con esta carta para obtener valores de <b>Q-A-P-F</b> más precisos antes de ingresarlos.
-        </p>
+        <div style="padding: 15px 20px; background: white;">
+            <p style="font-size: 11px; color: #555; text-align: center; margin: 0; line-height: 1.5;">
+                Compara la textura de tu muestra con esta carta para obtener valores de <b>Q-A-P-F</b> más precisos antes de ingresarlos.
+            </p>
+        </div>
+
     </div>
 </div>
 	<script>
@@ -1091,6 +1096,7 @@ window.onload = function() {
 </body>
 
 </html>
+
 
 
 
