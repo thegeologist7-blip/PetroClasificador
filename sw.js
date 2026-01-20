@@ -1,47 +1,51 @@
-const CACHE_NAME = 'petromaster-v6';
+const CACHE_NAME = 'petromaster-v7'; 
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  // './icon-192.png',  <-- HE BORRADO ESTA LÍNEA QUE CAUSABA EL ERROR
-  './icon-512.png',     // Este sí lo tienes
-  './Estimacion_Visual.jpg' 
-];
+  './icon-512.png'
+  ];
 
 // 1. INSTALACIÓN
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Abriendo caché...');
+        console.log('Abriendo caché y guardando archivos...');
         return cache.addAll(ASSETS_TO_CACHE);
       })
-      .then(() => self.skipWaiting()) // Importante: fuerza la instalación inmediata
+      .then(() => self.skipWaiting()) // Fuerza a que este SW activo sea el que manda
   );
 });
 
-// 2. ACTIVACIÓN
+// 2. ACTIVACIÓN (Limpieza de cachés viejas)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('Borrando caché antigua:', key);
             return caches.delete(key);
           }
         })
       );
-    }).then(() => self.clients.claim()) // Toma el control de la página inmediatamente
+    }).then(() => self.clients.claim()) // Toma control inmediato de la página
   );
 });
 
-// 3. FETCH
+// 3. INTERCEPTOR DE RED (Estrategia: Cache First, falling back to Network)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        return response || fetch(event.request);
+        // Si está en caché, úsalo (Offline)
+        if (response) {
+          return response;
+        }
+        // Si no, búscalo en internet
+        return fetch(event.request);
       })
   );
 });
